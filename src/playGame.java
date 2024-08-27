@@ -12,7 +12,6 @@ public class playGame implements ActionListener{
     JPanel stat_panel_Enemy = new JPanel();
     JLabel textfield = new JLabel();
     JButton[] buttons = new JButton[4];
-    JButton[] prompt_yn = new JButton[2];
     JLabel[] player_stat = new JLabel[6];
     JLabel[] enemy_stat = new JLabel[4];
     boolean playerTurn;
@@ -20,7 +19,7 @@ public class playGame implements ActionListener{
 
     Character player = new Character(100,10,10,10,0, 0, 1);
     Enemy basic_enemy = new Enemy(40, 10, 10, 10, 0, 20);
-    int level_up = 80 + (20 * player.level);
+    int level_up = 100;
 
     boolean gameOver;
 
@@ -55,12 +54,115 @@ public class playGame implements ActionListener{
         stat_panel_Enemy.setBounds(0,100,frame.getWidth(),250);
         stat_panel_Enemy.setBackground(Color.lightGray);
 
-       for(int i = 0; i<6; i++){
-           player_stat[i] = new JLabel();
-           stat_panel_Player.add(player_stat[i]);
-           player_stat[i].setFont(new Font("Verdana", Font.BOLD, 20));
-           player_stat[i].setFocusable(false);
-       }
+        beginGame();
+
+    }
+
+    @Override
+    public void actionPerformed(ActionEvent e) {
+            for (int i = 0; i < 4; i++) {
+                if (e.getSource() == buttons[i]) {
+
+                    //Player
+                    if (playerTurn) {
+                        player.active_defense = 0;
+                        player_stat[1].setText("Defence: " + player.active_defense);
+
+
+                        if (buttons[i].getText().equals("Attack")) {
+                            basic_enemy.curr_health = basic_enemy.curr_health - (player.attack - basic_enemy.active_defense);
+                            enemy_stat[0].setText("Health: " + basic_enemy.curr_health);
+                            if (basic_enemy.curr_health <= 0) {
+                                basic_enemy.curr_health = 0;
+                                enemy_stat[0].setText("Health: " + basic_enemy.curr_health);
+                                player.exp = player.exp + basic_enemy.exp;
+                                player_stat[5].setText("Exp: " + player.exp + "/" + level_up);
+                                player_wins();
+                            }
+
+                        } else if (buttons[i].getText().equals("Defend")) {
+                            player.active_defense = player.defense;
+                            player_stat[1].setText("Defence: " + player.active_defense);
+                        } else if (buttons[i].getText().equals("Heal")) {
+                            if (player.curr_health < player.Max_health) {
+                                player.curr_health = player.curr_health + 20;
+                                player_stat[0].setText("Health: " + player.curr_health);
+                            }
+                            if (player.curr_health > player.Max_health) {
+                                player.curr_health = player.Max_health;
+                                player_stat[0].setText("Health: " + player.curr_health);
+                            } else {
+                                textfield.setText("Full health");
+                            }
+
+                        } else if (buttons[i].getText().equals("Run")) {
+                            //resets battle (later on this will start a new battle with new enemy);
+
+                        }
+
+                        if(!gameOver) {
+                            playerTurn = false;
+                            textfield.setText("Enemy Turn");
+                        }else {
+
+                            play_again();
+
+                        }
+
+                    } else {
+
+                        //ENEMY
+
+                        basic_enemy.active_defense = 0;
+                        enemy_stat[1].setText("Defence: " + basic_enemy.active_defense);
+
+                        if (buttons[i].getText().equals("Attack")) {
+                            player.curr_health = player.curr_health - (basic_enemy.attack - player.active_defense);
+                            player_stat[0].setText("Health: " + player.curr_health);
+                            if (player.curr_health <= 0) {
+                                enemy_wins();
+                            }
+
+                        } else if (buttons[i].getText().equals("Defend")) {
+                            basic_enemy.active_defense = basic_enemy.defense;
+                            enemy_stat[1].setText("Defence: " + basic_enemy.active_defense);
+                        } else if (buttons[i].getText().equals("Heal")) {
+                            if (basic_enemy.curr_health < basic_enemy.Max_health) {
+                                basic_enemy.curr_health = basic_enemy.curr_health + 20;
+                                enemy_stat[0].setText("Health: " + basic_enemy.curr_health);
+                            }
+                            if (basic_enemy.curr_health > basic_enemy.Max_health) {
+                                basic_enemy.curr_health = basic_enemy.Max_health;
+                                enemy_stat[0].setText("Health: " + basic_enemy.curr_health);
+                            } else {
+                                textfield.setText("Full health");
+                            }
+
+                        } else if (buttons[i].getText().equals("Run")) {
+                            //resets battle (later on this will start a new battle with new enemy);
+
+                        }
+                        if(!gameOver) {
+                            playerTurn = true;
+                            textfield.setText("Player Turn");
+                        }else{
+                            play_again();
+
+                        }
+                    }
+                }
+            }
+        }
+
+
+
+    public void beginGame() {
+        for(int i = 0; i<6; i++){
+            player_stat[i] = new JLabel();
+            stat_panel_Player.add(player_stat[i]);
+            player_stat[i].setFont(new Font("Verdana", Font.BOLD, 20));
+            player_stat[i].setFocusable(false);
+        }
 
         player_stat[0].setText("Health: " + player.Max_health);
         player_stat[1].setText("Defence: " + player.active_defense);
@@ -101,127 +203,6 @@ public class playGame implements ActionListener{
         frame.add(stat_panel_Enemy);
         frame.add(button_panel);
 
-
-
-
-        beginGame();
-
-    }
-
-    @Override
-    public void actionPerformed(ActionEvent e) {
-        for(int i=0; i<4; i++){
-            if(e.getSource()==buttons[i]){
-
-                //Player
-
-                if(playerTurn){
-                    //if player pushes button, preform action, set actions for the 4 buttons.
-                    player.active_defense = 0;
-                    player_stat[1].setText("Defence: "+ player.active_defense);
-
-
-                    if (buttons[i].getText().equals("Attack")){
-                        basic_enemy.curr_health = basic_enemy.curr_health - (player.attack - basic_enemy.active_defense);
-                        enemy_stat[0].setText("Health: " + basic_enemy.curr_health);
-                        if(basic_enemy.curr_health <= 0){
-                            basic_enemy.curr_health = 0;
-                            enemy_stat[0].setText("Health: " + basic_enemy.curr_health);
-                            player.exp = player.exp + basic_enemy.exp;
-                            player_stat[5].setText("Exp: " + player.exp +"/" +level_up);
-                            player_wins();
-                        }
-
-                    }
-                    else if (buttons[i].getText().equals("Defend")){
-                        player.active_defense = player.defense;
-                        player_stat[1].setText("Defence "+ player.active_defense);
-                    }
-                    else if (buttons[i].getText().equals("Heal")){
-                        if(player.curr_health < player.Max_health) {
-                            player.curr_health = player.curr_health + 20;
-                            player_stat[0].setText("Health "+ player.curr_health);
-                        }
-                        if(player.curr_health > player.Max_health) {
-                            player.curr_health = player.Max_health;
-                            player_stat[0].setText("Health "+ player.curr_health);
-                        }
-                        else{
-                            textfield.setText("Full health");
-                        }
-
-                    }
-                    else if (buttons[i].getText().equals("Run")){
-                        //resets battle (later on this will start a new battle with new enemy);
-
-                    }
-
-                    if (!gameOver) {
-                        playerTurn = false;
-                        textfield.setText("Enemy Turn");
-                    }
-                    else{
-                        textfield.setText("Play again?");
-                        play_again();
-
-                    }
-                    //System.out.println("Enemy health: " + basic_enemy.curr_health);
-
-
-                }
-                else{
-
-                //ENEMY
-
-                    basic_enemy.active_defense = 0;
-                    enemy_stat[1].setText("Defence: "+ basic_enemy.active_defense);
-
-                    if (buttons[i].getText().equals("Attack")){
-                        player.curr_health = player.curr_health - (basic_enemy.attack - player.active_defense);
-                        player_stat[0].setText("Health "+ player.curr_health);
-                        if(player.curr_health <= 0){
-                            enemy_wins();
-
-                        }
-                    }
-                    else if (buttons[i].getText().equals("Defend")){
-                        basic_enemy.active_defense = basic_enemy.defense;
-                        enemy_stat[1].setText("Defence: "+ basic_enemy.active_defense);
-                    }
-                    else if (buttons[i].getText().equals("Heal")){
-                        if(basic_enemy.curr_health < basic_enemy.Max_health) {
-                            basic_enemy.curr_health = basic_enemy.curr_health + 20;
-                            enemy_stat[0].setText("Health: "+ basic_enemy.curr_health);
-                        }
-                        if(basic_enemy.curr_health > basic_enemy.Max_health) {
-                            basic_enemy.curr_health = basic_enemy.Max_health;
-                            enemy_stat[0].setText("Health: " + basic_enemy.curr_health);
-                        }
-                        else{
-                            textfield.setText("Full health");
-                        }
-
-                    }
-                    else if (buttons[i].getText().equals("Run")){
-                        //resets battle (later on this will start a new battle with new enemy);
-
-                    }
-
-                    if(!gameOver) {
-                        playerTurn = true;
-                        textfield.setText("Player Turn");
-                    }
-                    else{
-                        textfield.setText("Play again?");
-                        play_again();
-                    }
-                    //System.out.println("Player health: " + player.curr_health);
-                }
-            }
-        }
-    }
-
-    public void beginGame() {
         for(int i = 0; i<4; i++){
             buttons[i].setEnabled(false);
         }
@@ -230,7 +211,6 @@ public class playGame implements ActionListener{
         } catch (InterruptedException e){
             e.printStackTrace();
         }
-        gameOver = false;
         if(player.speed > basic_enemy.speed){
             playerTurn = true;
             textfield.setText("Player turn");
@@ -261,19 +241,12 @@ public class playGame implements ActionListener{
         if (player.exp >= level_up){
             player.exp = player.exp - level_up;
             player.level = player.level + 1;
+            level_up = 100 + ((player.level -1)  * 20);
             player_stat[2].setText("Level: " + player.level);
+            player_stat[5].setText("Exp: " + player.exp + "/" + level_up);
             textfield.setText("Player levelled up!");
-            try {
-                Thread.sleep(1000);
-            } catch (InterruptedException e){
-                e.printStackTrace();
-            }
         }
 
-        for(int i = 0; i<4; i++){
-            buttons[i].setEnabled(false);
-            //might not be necessary
-        }
         textfield.setText("Player wins!");
         gameOver = true;
 
@@ -282,40 +255,41 @@ public class playGame implements ActionListener{
 
     public void enemy_wins(){
 
-        for(int i = 0; i<4; i++){
-            buttons[i].setEnabled(false);
-            //might not be necessary
-        }
         textfield.setText("Enemy wins!");
         gameOver = true;
     }
 
     public void play_again(){
 
-        // this method or maybe begin game method needs to essentially refresh the game. move initializers to method, ie. stats
+        basic_enemy.curr_health = basic_enemy.Max_health;
+        player.curr_health = player.Max_health;
 
-        button_panel.setLayout(new GridLayout(1,2));
-        button_panel.setBackground(new Color(150,150,150));
-        button_panel.setBounds(0,600,frame.getWidth(),200);
+        enemy_stat[0].setText("Health: " + basic_enemy.curr_health);
+        player_stat[0].setText("Health: " + player.curr_health);
 
-        for(int i = 0; i<4; i++){
-            button_panel.remove(buttons[i]);
+        if(player.speed > basic_enemy.speed){
+            playerTurn = true;
+            textfield.setText("Player turn");
         }
 
-        for(int i = 0; i<2; i++){
-            prompt_yn[i] = new JButton();
-            button_panel.add(prompt_yn[i]);
-            buttons[i].setFont(new Font("Verdana", Font.BOLD, 20));
-            buttons[i].setFocusable(false);
-            buttons[i].addActionListener(this);
+        else if( player.speed == basic_enemy.speed){
+            if(random.nextInt(2) == 0){
+                playerTurn = true;
+                textfield.setText("Player turn");
+            }
+            else{
+                playerTurn = false;
+                textfield.setText("Enemy turn");
+            }
         }
 
-        prompt_yn[0].setText("Yes");
-        prompt_yn[1].setText("No");
+        else{
+            playerTurn = false;
+            textfield.setText("Enemy turn");
+        }
+
+        gameOver = false;
     }
-
-
-    //methods for game
 
 
 }
