@@ -1,0 +1,6 @@
+Interface: show enemy stats player stats
+
+implement basic AI funtion for enemy. 
+ - need to add actionlistener for player that then waits for computer to trigger seperate actionlistener, and vice versa. 
+
+Implement exp + lvl function. 
